@@ -9,5 +9,5 @@ local TeleportReq = false
 game.Players.LocalPlayer.OnTeleport:Connect(function()
     if TeleportReq then return end
     TeleportReq = true
-    queueteleport()
+      queueteleport(loadstring(game:HttpGet("https://raw.githubusercontent.com/0uriem/fasw/refs/heads/main/Main.lua", true))())
 end)
