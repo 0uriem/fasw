@@ -4,6 +4,7 @@ local Players = game:GetService('Players')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local RunService = game:GetService('RunService')
 local VirtualUser = game:GetService('VirtualUser')
+local VirtualInputManager = game:GetService('VirtualInputManager')
 --
 local CoreEvents = ReplicatedStorage:WaitForChild('Core'):WaitForChild('Events')
 --
@@ -19,6 +20,7 @@ local NapRemote = CharacterEvents:WaitForChild('Nap')
 local PlayerEvents = CoreEvents:WaitForChild('Player')
 local SelectMissionDifficulty = PlayerEvents:WaitForChild('SelectMissionDifficulty')
 local MenuAction = PlayerEvents:WaitForChild('MenuAction')
+local ReturnToMainMenu = PlayerEvents:WaitForChild('ReturnToMainMenu')
 --
 local CombatEvents = CoreEvents:WaitForChild('Combat')
 local LockOn = CombatEvents:WaitForChild('LockOn')
@@ -76,8 +78,7 @@ local TeleportReq = false
 LocalPlayer.OnTeleport:Connect(function()
     if TeleportReq then return end
     TeleportReq = true
-    queueteleport()
-
+    queueteleport(loadstring(game:HttpGet("https://raw.githubusercontent.com/0uriem/fasw/refs/heads/main/Menu.lua", true))())
 end)
 
 
@@ -499,15 +500,45 @@ local function NewFarm()
     end
     
 end
- NewFarm()
+
+local function AutoBlock()
+    local BlockedUser
+    local Users = Players:GetPlayers()
+    for index = 1,#Users do
+        local IndexUser = Users[index]
+        if IndexUser.Name ~= LocalPlayer.Name then
+            BlockedUser = IndexUser
+            break
+        end
+    end
+
+    game:GetService('StarterGui'):SetCore("PromptBlockPlayer",BlockedUser)
+    local PromptDialog = game.CoreGui.RobloxGui:WaitForChild('PromptDialog')
+    local ContainerFrame = PromptDialog:WaitForChild('ContainerFrame')
+    local ConfirmButton = ContainerFrame:WaitForChild('ConfirmButton')
+    local ConfirmText =  ConfirmButton:WaitForChild('ConfirmButtonText')
+    
+    if ConfirmText.Text == "Block" then  
+        wait()
+        local AbPos = ConfirmButton.AbsolutePosition
+        VirtualInputManager:SendMouseButtonEvent(AbPos.X + 10, AbPos.Y + 45, 0, true, game, 0)
+        task.wait()
+        VirtualInputManager:SendMouseButtonEvent(AbPos.X + 10, AbPos.Y + 45, 0, false, game, 0)
+    end
+end
+
+NewFarm()
+
 Players.PlayerAdded:Connect(function()
     getgenv().TestRun = false
+    AutoBlock()
+    ReturnToMainMenu:FireServer()
 end)
 
 
-Players.PlayerRemoving:Connect(function()
+--[[Players.PlayerRemoving:Connect(function()
     if #Players:GetPlayers() == 1 then
         getgenv().TestRun = true
         NewFarm()
     end
-end)
+end)]]
